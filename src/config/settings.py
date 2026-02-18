@@ -49,10 +49,22 @@ class Settings(BaseSettings):
     google_refresh_token: Optional[str] = None
     google_customer_id: Optional[str] = None
 
+    # Visual Generation APIs
+    fal_api_key: Optional[str] = None
+    creatomate_api_key: Optional[str] = None
+    runway_api_key: Optional[str] = None
+    heygen_api_key: Optional[str] = None
+    canva_api_key: Optional[str] = None
+
     # API Auth
     api_secret_key: str = "change-this-to-random-secret"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
+
+    @property
+    def visual_generation_ready(self) -> bool:
+        """At least image gen + compositor must be configured."""
+        return bool(self.fal_api_key and self.creatomate_api_key)
 
     @property
     def naver_configured(self) -> bool:

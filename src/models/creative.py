@@ -33,7 +33,12 @@ class CreativeAsset(BaseModel):
     config: CreativeConfig
     status: str = "draft"  # "draft" | "review" | "approved" | "rejected" | "active"
     review_notes: Optional[str] = None
+    visual_asset_ids: list[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.now)
+
+    @property
+    def has_visuals(self) -> bool:
+        return len(self.visual_asset_ids) > 0
 
 
 class CreativeVariation(BaseModel):

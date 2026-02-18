@@ -16,11 +16,14 @@ from src.api import (
     channels_router,
     creative_router,
     strategy_router,
+    visuals_router,
 )
 from src.channels.registry import ChannelRegistry
 from src.config.settings import get_settings
+from src.services.asset_storage import AssetStorage
+from src.services.visual_director import VisualDirectorService
 from src.storage.database import Database
-from src.storage.repositories import AgentLogRepository
+from src.storage.repositories import AgentLogRepository, VisualAssetRepository
 
 logger = structlog.get_logger()
 
@@ -43,7 +46,21 @@ async def lifespan(app: FastAPI):
 
     # Agent Orchestrator
     log_repo = AgentLogRepository(db)
-    app.state.orchestrator = AgentOrchestrator(settings, log_repo)
+    visual_repo = VisualAssetRepository(db)
+    asset_storage = AssetStorage()
+
+    # Visual Director (only if API keys configured)
+    visual_director = None
+    if settings.visual_generation_ready:
+        visual_director = VisualDirectorService(settings, visual_repo, asset_storage)
+        app.state.visual_director = visual_director
+        logger.info("visual_director_initialized")
+    else:
+        logger.info("visual_director_skipped", reason="API keys not configured")
+
+    app.state.orchestrator = AgentOrchestrator(
+        settings, log_repo, visual_director=visual_director
+    )
 
     logger.info(
         "ad_agent_started",
@@ -55,6 +72,8 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
+    if visual_director:
+        await visual_director.close()
     await db.close()
     logger.info("ad_agent_stopped")
 
@@ -81,6 +100,7 @@ app.include_router(strategy_router, prefix="/v1")
 app.include_router(creative_router, prefix="/v1")
 app.include_router(analytics_router, prefix="/v1")
 app.include_router(channels_router, prefix="/v1")
+app.include_router(visuals_router, prefix="/v1")
 
 
 @app.get("/")

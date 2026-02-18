@@ -20,6 +20,7 @@ import structlog
 
 from src.config.settings import Settings
 from src.models.campaign import CampaignBrief
+from src.models.visual import VisualGenerationRequest
 from src.storage.repositories import AgentLogRepository
 
 logger = structlog.get_logger()
@@ -35,11 +36,13 @@ class AgentOrchestrator:
         self,
         settings: Settings,
         log_repo: Optional[AgentLogRepository] = None,
+        visual_director=None,
     ) -> None:
         self._settings = settings
         self._client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         self._model = settings.ai_model
         self._log_repo = log_repo
+        self._visual_director = visual_director  # VisualDirectorService or None
 
     async def _call_agent(
         self,
@@ -349,6 +352,34 @@ class AgentOrchestrator:
             brief, channels, strategy_result["strategy"], campaign_id
         )
 
+        # Phase 3v: Visual Generation (if configured)
+        visual_result = None
+        if self._visual_director and self._settings.visual_generation_ready:
+            logger.info("pipeline_phase", phase="3v_visual_generation", campaign_id=campaign_id)
+            try:
+                visual_request = VisualGenerationRequest(
+                    campaign_id=campaign_id or "draft",
+                    channels=channels,
+                    product_description=brief.product_description,
+                    target_audience=brief.target_audience.custom_description if brief.target_audience else "",
+                    brand_name=brief.brand_name if hasattr(brief, "brand_name") else None,
+                    headline_ko=brief.product_name or brief.product_description[:30],
+                    cta_ko="자세히 보기",
+                    style_preference="photorealistic",
+                )
+                visual_result = await self._visual_director.generate_visuals(visual_request)
+                logger.info(
+                    "pipeline_phase_done",
+                    phase="3v_visual_generation",
+                    assets=len(visual_result.assets),
+                    cost=visual_result.total_cost_usd,
+                )
+            except Exception as e:
+                logger.error("visual_generation_skipped", error=str(e))
+                visual_result = None
+        else:
+            logger.info("pipeline_phase_skipped", phase="3v_visual_generation", reason="not configured")
+
         # Phase 4: Fact Check (mandatory gate)
         logger.info("pipeline_phase", phase="4_fact_check", campaign_id=campaign_id)
         fact_check_result = await self.fact_check(
@@ -381,7 +412,7 @@ class AgentOrchestrator:
             campaign_id=campaign_id,
         )
 
-        return {
+        result = {
             "research": research_result,
             "strategy": strategy_result,
             "concept": concept_result,
@@ -393,6 +424,17 @@ class AgentOrchestrator:
             "channels": channels,
             "pipeline": "8_phase_content_pipeline",
         }
+
+        if visual_result:
+            result["visuals"] = {
+                "total_assets": len(visual_result.assets),
+                "total_cost_usd": visual_result.total_cost_usd,
+                "generation_time_seconds": visual_result.generation_time_seconds,
+                "asset_ids": [a.id for a in visual_result.assets],
+                "skipped_formats": visual_result.skipped_formats,
+            }
+
+        return result
 
 
 # ====== Agent System Prompts ======

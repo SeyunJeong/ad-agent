@@ -109,10 +109,32 @@ CREATE TABLE IF NOT EXISTS optimization_history (
     FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
 );
 
+CREATE TABLE IF NOT EXISTS visual_assets (
+    id TEXT PRIMARY KEY,
+    campaign_id TEXT NOT NULL,
+    creative_id TEXT,
+    channel TEXT NOT NULL,
+    format TEXT NOT NULL,
+    asset_type TEXT NOT NULL DEFAULT 'image',
+    status TEXT NOT NULL DEFAULT 'pending',
+    raw_image_path TEXT,
+    composite_path TEXT,
+    visual_brief_json TEXT,
+    text_overlay_json TEXT,
+    review_feedback TEXT,
+    canva_edit_url TEXT,
+    generation_cost_usd REAL DEFAULT 0.0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_daily_stats_campaign ON daily_stats(campaign_id, stat_date);
 CREATE INDEX IF NOT EXISTS idx_ads_adgroup ON ads(ad_group_id);
 CREATE INDEX IF NOT EXISTS idx_adgroups_campaign ON ad_groups(campaign_id);
 CREATE INDEX IF NOT EXISTS idx_agent_logs_campaign ON agent_logs(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_visual_assets_campaign ON visual_assets(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_visual_assets_status ON visual_assets(status);
 """
 
 
