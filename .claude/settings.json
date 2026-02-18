@@ -1,0 +1,8 @@
+{
+  "skills": {
+    "ad-agent": {
+      "description": "AI 퍼포먼스 마케팅 에이전트 - Self-Debate 광고 전략 수립",
+      "path": ".claude/skills/ad-agent/SKILL.md"
+    }
+  }
+}
