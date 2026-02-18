@@ -8,6 +8,11 @@
 **셀프 디베이트 모드**를 통해 자신의 전략을 Red Team 관점에서 검증하여
 더 견고한 전략을 도출한다.
 
+### 8단계 파이프라인에서의 위치
+- **입력**: DEEP_RESEARCHER의 심층 리서치 결과 (`handoff/research_to_strategist.md`)
+- **출력**: CONCEPT_PLANNER에게 전략 전달 (`handoff/strategy_to_concept.md`)
+- **Phase**: Phase 1 (Strategy - Self-Debate)
+
 ---
 
 ## 핵심 역량
@@ -280,6 +285,8 @@ Phase 4: 최종 전략 확정
 | 대상 | 협업 내용 |
 |------|----------|
 | TEAM_LEAD | 전략 방향 승인, 캠페인 브리프 수령, 셀프 디베이트 결과 보고 |
+| DEEP_RESEARCHER | 리서치 데이터 수신 (`handoff/research_to_strategist.md`), 리서치 기반 전략 수립 |
+| CONCEPT_PLANNER | 전략 USP + 디베이트 결과 전달 (`handoff/strategy_to_concept.md`) |
 | KEYWORD_AUDIENCE_TEAM | 전략 기반 키워드/오디언스 리서치 지시 (strategy_to_keyword_team.md) |
 | CREATIVE_TEAM | 핵심 메시지/USP 전달, 크리에이티브 방향 설정 |
 | BID_OPTIMIZER | 예산 배분 전략 전달, 입찰 목표 설정 |
@@ -322,4 +329,6 @@ TEAM_LEAD가 토론을 요청하면, 아래 관점에서 의견 제시:
 | `config/channels.md` | 채널별 특성/API 스펙 |
 | `config/kpi_definitions.md` | KPI 정의 및 벤치마크 |
 | `config/templates.md` | 업종별 캠페인 템플릿 |
+| `handoff/research_to_strategist.md` | DEEP_RESEARCHER → 전략가 (리서치 데이터 수신) |
+| `handoff/strategy_to_concept.md` | 전략가 → CONCEPT_PLANNER (전략 + 디베이트 결과) |
 | `handoff/strategy_to_keyword_team.md` | 키워드/오디언스팀 전달 양식 |

@@ -17,7 +17,7 @@
 
 ---
 
-## 팀 구성 (16명)
+## 팀 구성 (20명)
 
 ### 조직도
 
@@ -37,10 +37,15 @@ TEAM_LEAD (1)
     |   +-- DATA_MONITOR (데이터 모니터)
     |   +-- INSIGHT_ANALYST (인사이트 분석가)
     +-- CHANNEL_TEAM (4)
-        +-- NAVER_SPECIALIST (네이버 전문가)
-        +-- KAKAO_SPECIALIST (카카오 전문가)
-        +-- META_SPECIALIST (메타 전문가)
-        +-- GOOGLE_SPECIALIST (구글 전문가)
+    |   +-- NAVER_SPECIALIST (네이버 전문가)
+    |   +-- KAKAO_SPECIALIST (카카오 전문가)
+    |   +-- META_SPECIALIST (메타 전문가)
+    |   +-- GOOGLE_SPECIALIST (구글 전문가)
+    +-- CONTENT_PIPELINE_TEAM (4) ── 콘텐츠 파이프라인 (품질 관리)
+        +-- DEEP_RESEARCHER (심층 리서처)
+        +-- CONCEPT_PLANNER (컨셉 기획자)
+        +-- AD_FACT_CHECKER (팩트 체커)
+        +-- QA_SCORER (품질 스코어러)
 ```
 
 ### 에이전트/서브팀 목록
@@ -66,6 +71,11 @@ TEAM_LEAD (1)
 | 7-2 | KAKAO_SPECIALIST | 서브팀원 | `agents/channel-team/KAKAO_SPECIALIST.md` | 디스플레이, 비즈보드, 친구톡/알림톡, 카카오 API |
 | 7-3 | META_SPECIALIST | 서브팀원 | `agents/channel-team/META_SPECIALIST.md` | 피드, 리일스, DPA, 픽셀+CAPI, Meta API |
 | 7-4 | GOOGLE_SPECIALIST | 서브팀원 | `agents/channel-team/GOOGLE_SPECIALIST.md` | 검색, 디스플레이, YouTube, P-Max, Google API |
+| 8 | **CONTENT_PIPELINE_TEAM** | 서브팀 (4명) | `agents/content-pipeline/` | 심층 리서치, 컨셉 기획, 팩트체크, 품질 스코어링 |
+| 8-1 | DEEP_RESEARCHER | 서브팀원 | `agents/content-pipeline/DEEP_RESEARCHER.md` | 시장/경쟁사/타겟 심층 리서치, 벤치마크 수집 |
+| 8-2 | CONCEPT_PLANNER | 서브팀원 | `agents/content-pipeline/CONCEPT_PLANNER.md` | 전략→컨셉 변환, 2-3안 개발, A/B 설계 |
+| 8-3 | AD_FACT_CHECKER | 서브팀원 | `agents/content-pipeline/AD_FACT_CHECKER.md` | 수치/주장 사실 검증, 법규 체크 (필수 게이트) |
+| 8-4 | QA_SCORER | 서브팀원 | `agents/content-pipeline/QA_SCORER.md` | 50점 품질 스코어링, PASS/REVISE/REJECT 판정 |
 
 ---
 
@@ -125,6 +135,24 @@ Phase 4: 최종 패키징 → CHANNEL_TEAM 전달
 
 트러블슈팅 (비정기):
     특정 채널 이슈 발생 시 해당 전문가가 즉시 대응
+```
+
+### CONTENT_PIPELINE_TEAM: 8단계 파이프라인 품질 관리
+```
+Phase 0 (DEEP_RESEARCHER): 심층 리서치
+    → research_to_strategist.md → CAMPAIGN_STRATEGIST
+
+Phase 2 (CONCEPT_PLANNER): 컨셉 기획 (전략→컨셉 2-3안)
+    → concept_to_production.md → CREATIVE_TEAM
+
+Phase 4 (AD_FACT_CHECKER): 팩트체크 ██ 필수 게이트 ██
+    → factcheck_to_qa.md → QA_SCORER
+    → FAIL → Phase 3 리턴
+
+Phase 5 (QA_SCORER): 품질 스코어링 (50점 만점)
+    → PASS (≥35) → CHANNEL_TEAM
+    → REVISE → Phase 3 리턴
+    → REJECT → Phase 2 리턴
 ```
 
 ---
@@ -274,13 +302,13 @@ Phase 4: 최종 패키징 → CHANNEL_TEAM 전달
          v
     [TEAM_LEAD] <-- 오케스트레이션/라우팅
          |
-    +----+--------+----------+--------+---------+
-    v    v        v          v        v         v
- [전략] [키워드팀] [크리에이티브팀] [입찰] [분석팀] [채널팀]
-         |             |                  |         |
-    +---------+   +---------+      +--------+  +--------+--------+--------+
-    v    v    v   v    v    v      v        v  v        v        v        v
- [검색] [오디] [트렌드] [카피] [비주얼] [심사] [모니터] [인사이트] [네이버] [카카오] [메타] [구글]
+    +----+--------+----------+--------+---------+-----------+
+    v    v        v          v        v         v           v
+ [전략] [키워드팀] [크리에이티브팀] [입찰] [분석팀] [채널팀] [콘텐츠파이프라인]
+         |             |                  |         |           |
+    +---------+   +---------+      +--------+  +------+------+------+  +------+------+------+
+    v    v    v   v    v    v      v        v  v      v      v      v  v      v      v      v
+ [검색] [오디] [트렌드] [카피] [비주얼] [심사] [모니터] [인사이트] [네이버] [카카오] [메타] [구글] [심층리서치] [컨셉기획] [팩트체크] [QA스코어]
 ```
 
 ### 확장 포인트
@@ -332,11 +360,16 @@ ad-agent/
 │   ├── analytics-team/            ← 애널리틱스 서브팀
 │   │   ├── DATA_MONITOR.md
 │   │   └── INSIGHT_ANALYST.md
-│   └── channel-team/              ← 채널 서브팀
-│       ├── NAVER_SPECIALIST.md
-│       ├── KAKAO_SPECIALIST.md
-│       ├── META_SPECIALIST.md
-│       └── GOOGLE_SPECIALIST.md
+│   ├── channel-team/              ← 채널 서브팀
+│   │   ├── NAVER_SPECIALIST.md
+│   │   ├── KAKAO_SPECIALIST.md
+│   │   ├── META_SPECIALIST.md
+│   │   └── GOOGLE_SPECIALIST.md
+│   └── content-pipeline/          ← 콘텐츠 파이프라인 서브팀
+│       ├── DEEP_RESEARCHER.md
+│       ├── CONCEPT_PLANNER.md
+│       ├── AD_FACT_CHECKER.md
+│       └── QA_SCORER.md
 ├── workflows/                     ← 워크플로우 정의
 │   ├── campaign_creation.md
 │   ├── optimization.md
@@ -345,7 +378,10 @@ ad-agent/
 ├── config/                        ← 설정
 │   ├── channels.md
 │   ├── kpi_definitions.md
-│   └── templates.md
+│   ├── templates.md
+│   ├── ad_quality_scoring.md
+│   ├── researcher_prechecklist.md
+│   └── feedback_loop.md
 ├── plugin/                        ← 플러그인 인터페이스
 │   ├── interface.md
 │   ├── adapters.md
@@ -355,7 +391,13 @@ ad-agent/
 │   ├── keyword_team_to_creative_team.md
 │   ├── creative_team_to_channel_team.md
 │   ├── creative_to_thread.md
-│   └── budget_to_finance.md
+│   ├── budget_to_finance.md
+│   ├── research_to_strategist.md
+│   ├── strategy_to_concept.md
+│   ├── concept_to_production.md
+│   ├── production_to_factcheck.md
+│   ├── factcheck_to_qa.md
+│   └── analysis_to_planning.md
 ├── analysis/                      ← 분석 문서
 │   └── team_structure_analysis.md
 ├── state/                         ← 상태 관리

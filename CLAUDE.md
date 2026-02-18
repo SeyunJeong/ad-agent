@@ -36,7 +36,7 @@ Self-Debate (Blue→Red→Defense) 워크플로우가 자동 실행됩니다.
 
 ---
 
-## 팀 구성 (16명)
+## 팀 구성 (20명)
 
 ### 개인 에이전트 (3명)
 
@@ -78,6 +78,60 @@ Self-Debate (Blue→Red→Defense) 워크플로우가 자동 실행됩니다.
 | META_SPECIALIST | 피드, 리일스, DPA, 픽셀+CAPI, Meta Marketing API |
 | GOOGLE_SPECIALIST | 검색, 디스플레이, YouTube, P-Max, Google Ads API |
 
+### CONTENT_PIPELINE_TEAM (4명)
+
+| 역할 | 담당 |
+|------|------|
+| DEEP_RESEARCHER | 시장/경쟁사/타겟 심층 리서치, 벤치마크 수집, 리서치 사전 검증 |
+| CONCEPT_PLANNER | 전략→크리에이티브 컨셉 2-3안, 채널별 변주, A/B 설계 |
+| AD_FACT_CHECKER | 광고 카피 사실 검증, 법규 체크 (필수 게이트 — PASS 없으면 진행 불가) |
+| QA_SCORER | 5점×10점=50점 품질 스코어링, PASS/REVISE/REJECT 판정 |
+
+---
+
+## 8단계 콘텐츠 파이프라인 (2026-02-18 도입)
+
+> **모든 신규 캠페인은 8단계 파이프라인을 따른다.**
+> 팩트체크(Phase 4)는 필수 게이트 — TEAM_LEAD도 override 불가.
+> QA 스코어 35/50 미만 시 자동 리턴.
+
+```
+Phase 0: Deep Research        → DEEP_RESEARCHER
+Phase 1: Strategy (Self-Debate) → CAMPAIGN_STRATEGIST
+Phase 2: Concept / Ideation   → CONCEPT_PLANNER
+Phase 3: Production            → COPYWRITER + VISUAL_DIRECTOR + KEYWORD팀
+Phase 4: Fact Check ██ 필수 ██ → AD_FACT_CHECKER
+Phase 5: QA Scoring            → QA_SCORER + CREATIVE_REVIEWER
+Phase 6: Channel Setup         → CHANNEL_TEAM + BID_OPTIMIZER
+Phase 7: Analysis + Feedback   → ANALYTICS_TEAM → (다음 이터레이션)
+```
+
+### 품질 게이트 규칙
+
+| Phase | 게이트 | 통과 기준 | 실패 시 |
+|-------|--------|----------|--------|
+| Phase 4 | 팩트체크 | AD_FACT_CHECKER PASS | Phase 3 리턴 (override 불가) |
+| Phase 5 | QA 스코어 | 총점 ≥ 35/50 AND 개별 ≥ 5/10 | REVISE → Phase 3 / REJECT → Phase 2 |
+
+### QA 스코어링 (50점 만점)
+
+| 지표 | 평가자 | 만점 |
+|------|--------|------|
+| Strategy Alignment | QA_SCORER | 10 |
+| Data Accuracy | AD_FACT_CHECKER | 10 |
+| Creative Impact | QA_SCORER | 10 |
+| Channel Optimization | QA_SCORER | 10 |
+| Legal Compliance | CREATIVE_REVIEWER | 10 |
+
+상세: `config/ad_quality_scoring.md`
+
+### 리턴 루프
+
+- **최대 리턴**: 3회 (초과 시 TEAM_LEAD 에스컬레이션)
+- **REVISE**: Phase 3 리턴 (컨셉 유지, 카피/비주얼 수정)
+- **REJECT**: Phase 2 리턴 (전략 유지, 컨셉 변경)
+- **피드백 루프**: Phase 7 분석 → Phase 0/2/3 재진입 (config/feedback_loop.md)
+
 ---
 
 ## 서브팀 관리 규칙
@@ -107,6 +161,23 @@ BID_OPTIMIZER ←→ CHANNEL_TEAM (입찰/예산 실행)
 ANALYTICS_TEAM ←→ 전체 (데이터 수집/분석/리포트)
 CREATIVE_TEAM ←→ thread-team (소재 제작 요청)
 DATA_MONITOR ←→ finance (비용 리포트)
+
+[8단계 콘텐츠 파이프라인 흐름]
+
+DEEP_RESEARCHER
+    → (research_to_strategist.md) →
+CAMPAIGN_STRATEGIST
+    → (strategy_to_concept.md) →
+CONCEPT_PLANNER
+    → (concept_to_production.md) →
+CREATIVE_TEAM + KEYWORD_AUDIENCE_TEAM
+    → (production_to_factcheck.md) →
+AD_FACT_CHECKER ██ 필수 게이트 ██
+    → (factcheck_to_qa.md) →
+QA_SCORER + CREATIVE_REVIEWER
+    → PASS → CHANNEL_TEAM
+    → REVISE → Phase 3 리턴
+    → REJECT → Phase 2 리턴
 ```
 
 ### 에스컬레이션 규칙
@@ -154,6 +225,9 @@ DATA_MONITOR ←→ finance (비용 리포트)
 - `config/kpi_definitions.md` - KPI 정의서
 - `config/templates.md` - 캠페인 템플릿
 - `logs/retrospective.md` - 실수/우수사례 기록
+- `config/ad_quality_scoring.md` - 5점 스코어링 루브릭
+- `config/researcher_prechecklist.md` - 리서치 사전 검증 5개 게이트
+- `config/feedback_loop.md` - 피드백 루프 메커니즘
 
 ---
 
@@ -216,3 +290,5 @@ DATA_MONITOR ←→ finance (비용 리포트)
 | 5 | **한국 시장 특수성 반영** — 글로벌 벤치마크를 한국에 그대로 적용하지 않는다 | 전략 수립 |
 | 6 | **서브팀 간 핸드오프 누락 금지** — 인수인계 문서 없는 전달은 불가 | 모든 워크플로우 |
 | 7 | **법적/규제 검수 필수** — CREATIVE_REVIEWER 승인 없는 소재 집행 금지 | 크리에이티브 |
+| 8 | **팩트체크 게이트 우회 금지** — AD_FACT_CHECKER PASS 없이 광고 집행 절대 금지 | 크리에이티브 |
+| 9 | **QA 스코어 타협 금지** — 35/50 미만 크리에이티브는 반드시 리턴 | QA |
